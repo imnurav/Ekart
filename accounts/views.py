@@ -114,7 +114,7 @@ def login(request):
             url = request.META.get('HTTP_REFERER')
             try:
                 query = requests.utils.urlparse(url).query
-                print('query --- >', query)
+                # print('query --- >', query)
                 params = dict(x.split('=') for x in query.split('&'))
                 if 'next' in params:
                     nextPage = params['next']
@@ -159,10 +159,13 @@ def dashboard(request):
     orders = Order.objects.order_by(
         '-created_at').filter(user_id=request.user.id, is_ordered=True)
     orders_count = orders.count()
-    userprofile = UserProfile.objects.get(user_id=request.user.id)
+    # profile = get_object_or_404(UserProfile, user=request.user)
+
+    profile = UserProfile.objects.get(user_id=request.user.id)
+
     context = {
         'orders_count': orders_count,
-        'userprofile': userprofile,
+        'profile': profile,
     }
     return render(request, 'accounts/dashboard.html', context)
 

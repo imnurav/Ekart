@@ -25,8 +25,14 @@
                                 <div class="card" style="text-align: center;">
                                     <div class="card-body">
 
-                                        <img src="{{userprofile.profile_picture.url}}" alt="User Picture" width="100"
-                                            style="border-radius: 50%;">
+                                        {%if not profile.profile_picture%}
+                                        <img src="https://www.w3schools.com/howto/img_avatar.png" width="150"
+                                            style="border-radius: 50%;" alt="Profile Picture">
+
+                                        {%else%}
+                                        <img src="{{profile.profile_picture.url}}" width="150"
+                                            style="border-radius: 50%;" alt="Profile Picture">
+                                        {%endif%}
                                         <p class="mb-0 mt-2">{{user.email}}</p>
                                         <p>{{user.phone_number}}</p>
                                     </div>

@@ -11,8 +11,13 @@
                     </header>
                     <div class="card-body">
                         <div class="text-center mb-4">
+                            {%if userprofile.profile_picture%}
                             <img src="{{userprofile.profile_picture.url}}" width="150" style="border-radius: 50%;"
                                 alt="Profile Picture">
+                            {%else%}
+                            <img src="https://www.w3schools.com/howto/img_avatar.png" width="150"
+                                style="border-radius: 50%;" alt="Profile Picture">
+                            {%endif%}
                         </div>
                         <div class="row">
 
