@@ -24,13 +24,11 @@
                             <div class="col-md-6">
                                 <div class="card" style="text-align: center;">
                                     <div class="card-body">
-
-                                        {%if not profile.profile_picture%}
-                                        <img src="https://www.w3schools.com/howto/img_avatar.png" width="150"
-                                            style="border-radius: 50%;" alt="Profile Picture">
-
-                                        {%else%}
+                                        {%if profile.profile_picture%}
                                         <img src="{{profile.profile_picture.url}}" width="150"
+                                            style="border-radius: 50%;" alt="Profile Picture">
+                                        {%else%}
+                                        <img src="https://www.w3schools.com/howto/img_avatar.png" width="150"
                                             style="border-radius: 50%;" alt="Profile Picture">
                                         {%endif%}
                                         <p class="mb-0 mt-2">{{user.email}}</p>
