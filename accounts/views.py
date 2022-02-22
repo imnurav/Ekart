@@ -16,6 +16,8 @@ from carts.views import _cart_id
 import requests
 # Create your views here.
 
+# Registration for the new user
+
 
 def register(request):
     if request.method == 'POST':
@@ -58,6 +60,26 @@ def register(request):
     return render(request, 'accounts/register.html', context)
 
 
+#  Activation  of register user
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Account._default_manager.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(
+            request, 'Congratulation Your Account is activated....')
+        return redirect('login')
+    else:
+        messages.error(request, 'Invalid activation Link!!!!!!!')
+        return redirect('register')
+
+
+# Login  view for registered user
 def login(request):
     if request.method == 'POST':
         email = request.POST['email']
@@ -128,70 +150,14 @@ def login(request):
             return redirect('login')
     return render(request, 'accounts/login.html')
 
+# Logout view
+
 
 @login_required(login_url='login')
 def logout(request):
     auth.logout(request)
     messages.success(request, 'You are logged out.')
     return redirect('login')
-
-
-def activate(request, uidb64, token):
-    try:
-        uid = urlsafe_base64_decode(uidb64).decode()
-        user = Account._default_manager.get(pk=uid)
-    except(TypeError, ValueError, OverflowError, Account.DoesNotExist):
-        user = None
-
-    if user is not None and default_token_generator.check_token(user, token):
-        user.is_active = True
-        user.save()
-        messages.success(
-            request, 'Congratulation Your Account is activated....')
-        return redirect('login')
-    else:
-        messages.error(request, 'Invalid activation Link!!!!!!!')
-        return redirect('register')
-
-
-@login_required(login_url='login')
-def dashboard(request):
-    orders = Order.objects.order_by(
-        '-created_at').filter(user_id=request.user.id, is_ordered=True)
-    orders_count = orders.count()
-    # profile = get_object_or_404(UserProfile, user=request.user)
-
-    profile = UserProfile.objects.get_or_create(user_id=request.user.id)[0]
-    # print("profile  ", profile)
-
-    context = {
-        'orders_count': orders_count,
-        'profile': profile,
-    }
-    return render(request, 'accounts/dashboard.html', context)
-
-
-@login_required(login_url='login')
-def edit_profile(request):
-    userprofile = get_object_or_404(UserProfile, user=request.user)
-    if request.method == 'POST':
-        user_form = UserForm(request.POST, instance=request.user)
-        profile_form = UserProfileForm(
-            request.POST, request.FILES, instance=userprofile)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(request, 'Your Profile has been updated.')
-            return redirect('edit_profile')
-    else:
-        user_form = UserForm(instance=request.user)
-        profile_form = UserProfileForm(instance=userprofile)
-    context = {
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'userprofile': userprofile
-    }
-    return render(request, 'accounts/edit_profile.html', context)
 
 
 def forgotPassword(request):
@@ -254,6 +220,46 @@ def resetPassword(request):
             return redirect('resetPassword')
     else:
         return render(request, 'accounts/resetPassword.html')
+
+
+@login_required(login_url='login')
+def dashboard(request):
+    orders = Order.objects.order_by(
+        '-created_at').filter(user_id=request.user.id, is_ordered=True)
+    orders_count = orders.count()
+    # profile = get_object_or_404(UserProfile, user=request.user)
+
+    profile = UserProfile.objects.get_or_create(user_id=request.user.id)[0]
+    # print("profile  ", profile)
+
+    context = {
+        'orders_count': orders_count,
+        'profile': profile,
+    }
+    return render(request, 'accounts/dashboard.html', context)
+
+
+@login_required(login_url='login')
+def edit_profile(request):
+    userprofile = get_object_or_404(UserProfile, user=request.user)
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(
+            request.POST, request.FILES, instance=userprofile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your Profile has been updated.')
+            return redirect('edit_profile')
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = UserProfileForm(instance=userprofile)
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'userprofile': userprofile
+    }
+    return render(request, 'accounts/edit_profile.html', context)
 
 
 @login_required(login_url='login')
